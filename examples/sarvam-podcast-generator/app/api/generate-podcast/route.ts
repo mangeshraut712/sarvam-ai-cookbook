@@ -31,19 +31,19 @@ const LANGUAGE_PROMPT_NAMES: { [key: string]: string } = {
   'od-IN': 'Odia'
 };
 
-// Voice mappings for different speakers
+// Voice mappings for different speakers (bulbul:v3)
 const VOICE_MAPPINGS: { [key: string]: { host: string; guest: string } } = {
-  'hi-IN': { host: 'anushka', guest: 'karun' },
-  'en-IN': { host: 'anushka', guest: 'karun' },
-  'ta-IN': { host: 'anushka', guest: 'karun' },
-  'te-IN': { host: 'anushka', guest: 'karun' },
-  'bn-IN': { host: 'anushka', guest: 'karun' },
-  'gu-IN': { host: 'anushka', guest: 'karun' },
-  'mr-IN': { host: 'anushka', guest: 'karun' },
-  'ml-IN': { host: 'anushka', guest: 'karun' },
-  'kn-IN': { host: 'anushka', guest: 'karun' },
-  'pa-IN': { host: 'anushka', guest: 'karun' },
-  'od-IN': { host: 'anushka', guest: 'karun' }
+  'hi-IN': { host: 'priya', guest: 'shubh' },
+  'en-IN': { host: 'priya', guest: 'shubh' },
+  'ta-IN': { host: 'priya', guest: 'shubh' },
+  'te-IN': { host: 'priya', guest: 'shubh' },
+  'bn-IN': { host: 'priya', guest: 'shubh' },
+  'gu-IN': { host: 'priya', guest: 'shubh' },
+  'mr-IN': { host: 'priya', guest: 'shubh' },
+  'ml-IN': { host: 'priya', guest: 'shubh' },
+  'kn-IN': { host: 'priya', guest: 'shubh' },
+  'pa-IN': { host: 'priya', guest: 'shubh' },
+  'od-IN': { host: 'priya', guest: 'shubh' }
 };
 
 async function callSarvamChat(messages: Array<{role: string, content: string}>, temperature: number = 0.7, maxTokens?: number, retryCount: number = 0): Promise<string> {
@@ -404,12 +404,10 @@ async function textToSpeech(text: string, language: string, speaker: 'host' | 'g
         inputs: [text],
         target_language_code: language,
         speaker: selectedVoice,
-        pitch: speaker === 'host' ? 0 : -0.1,
         pace: 1.0,
-        loudness: 1.2,
+        temperature: 0.6,
         speech_sample_rate: 22050,
-        enable_preprocessing: true,
-        model: 'bulbul:v2'
+        model: 'bulbul:v3'
       }),
     });
 

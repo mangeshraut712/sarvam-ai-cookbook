@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
-TTS_CHARACTER_LIMIT = 1500 # As per Sarvam API documentation
+TTS_CHARACTER_LIMIT = 2500 # As per Sarvam API documentation (bulbul:v3)
 MIN_TEXT_LENGTH_FOR_FORCED_TWO_WAY_SPLIT = 20 # Chars, don't split very short texts forcibly
 
 def _clean_text_for_tts(text_input):
@@ -48,7 +48,7 @@ def _clean_text_for_tts(text_input):
     print(f"[modules/tts.py] _clean_text_for_tts: Original (len {len(text_input)}): '{text_input[:100]}...', Cleaned (len {len(cleaned_text)}): '{cleaned_text[:100]}...'")
     return cleaned_text
 
-def _call_sarvam_tts(text_chunk, lang_code, speaker='meera', model='bulbul:v1'):
+def _call_sarvam_tts(text_chunk, lang_code, speaker='shubh', model='bulbul:v3'):
     """Helper function to call Sarvam TTS API for a single text chunk."""
     print(f"[modules/tts.py] _call_sarvam_tts: Calling API for chunk (length: {len(text_chunk)}): '{text_chunk[:100]}...'")
     if not SARVAM_API_KEY:
@@ -187,7 +187,7 @@ def _concatenate_wav_from_base64_list(base64_audio_list):
     print(f"[modules/tts.py] _concatenate_wav_from_base64_list: Concatenation successful. Final base64 length: {len(final_concatenated_base64)}")
     return final_concatenated_base64
 
-def text_to_speech(text, lang_code, speaker='anushka', model='bulbul:v2'):
+def text_to_speech(text, lang_code, speaker='shubh', model='bulbul:v3'):
     """
     Converts text to speech. Handles chunking for texts longer than TTS_CHARACTER_LIMIT.
     For texts <= TTS_CHARACTER_LIMIT but >= MIN_TEXT_LENGTH_FOR_FORCED_TWO_WAY_SPLIT, it will be split into two.
