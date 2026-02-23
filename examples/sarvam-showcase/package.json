@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Interactive Sarvam AI Cookbook frontend showcasing India-first AI capabilities.",
   "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "(node -e \"require.resolve('next/package.json')\" || npm install) && next build",
