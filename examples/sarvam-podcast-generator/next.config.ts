@@ -102,7 +102,7 @@ const nextConfig: NextConfig = {
   },
 
   // Webpack configuration for better performance
-  webpack: (config: any, { buildId, dev, isServer, defaultLoaders, webpack }: any) => {
+  webpack: (config: any, { dev, isServer }: any) => {
     // Add custom webpack optimizations
     if (!dev && !isServer) {
       config.optimization.splitChunks.chunks = 'all';

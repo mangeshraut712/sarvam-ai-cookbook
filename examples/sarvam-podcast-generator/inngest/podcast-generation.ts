@@ -109,10 +109,6 @@ async function callSarvamChat(messages: Array<{ role: string, content: string }>
     }
 }
 
-async function rateLimitDelay(delayMs: number = 1000): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, delayMs));
-}
-
 // Simple rate limit tracking
 let lastApiCallTime = 0;
 const MIN_INTERVAL_BETWEEN_CALLS = 1000;
@@ -468,7 +464,7 @@ export const generatePodcastFunction = inngest.createFunction(
                                 summary: `Section ${i + 1}: ${summary}`,
                                 chunkIndex: i + 1
                             };
-                        } catch (error) {
+                        } catch {
                             console.error(`Failed to summarize chunk ${i + 1}, using original chunk (truncated)`);
                             // Fallback: use truncated original chunk
                             const truncated = chunks[i].substring(0, 2000) + '...';
