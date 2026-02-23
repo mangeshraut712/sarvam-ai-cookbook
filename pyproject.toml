@@ -40,7 +40,6 @@ markers = [
     "unit: unit tests that don't require network access",
     "slow: tests that take more than a few seconds to run",
 ]
-testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
