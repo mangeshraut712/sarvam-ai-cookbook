@@ -24,6 +24,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+!examples/sarvam-showcase/src/lib/
+!examples/sarvam-showcase/src/lib/**
 lib64/
 parts/
 sdist/

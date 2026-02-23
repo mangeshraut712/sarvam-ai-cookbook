@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd examples/sarvam-showcase && npm ci",
+  "buildCommand": "cd examples/sarvam-showcase && npm run build",
+  "devCommand": "cd examples/sarvam-showcase && npm run dev"
+}

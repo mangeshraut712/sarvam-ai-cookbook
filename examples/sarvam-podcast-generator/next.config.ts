@@ -1,12 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-
   // Performance optimizations
-  swcMinify: true,
   compress: true,
 
   // Image optimization

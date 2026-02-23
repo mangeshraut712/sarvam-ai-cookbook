@@ -16,6 +16,12 @@ export async function GET() {
         uploadthing: 'unknown',
         mistral: 'unknown',
         sarvam: 'unknown',
+        configuration: {
+          required: 'unknown',
+          optional: 'unknown',
+          missing_required: [] as string[],
+          missing_optional: [] as string[],
+        },
         memory_usage: process.memoryUsage(),
         cpu_usage: process.cpuUsage(),
       },
@@ -52,7 +58,7 @@ export async function GET() {
     healthCheck.checks.sarvam = process.env.SARVAM_API_KEY ? 'configured' : 'not_configured';
 
     // Determine overall health status
-    const criticalServices = ['sarvam', 'mistral', 'inngest', 'uploadthing'];
+    const criticalServices = ['sarvam', 'mistral', 'inngest', 'uploadthing'] as const;
     const hasCriticalFailures = criticalServices.some(service =>
       healthCheck.checks[service] === 'not_configured'
     );
