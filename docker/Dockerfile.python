@@ -1,0 +1,57 @@
+# Python Dockerfile for Sarvam AI Cookbook
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r sarvam && useradd -r -g sarvam sarvam
+
+# Set work directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install \
+        black \
+        flake8 \
+        pytest \
+        isort \
+        mypy \
+        coverage \
+        bandit \
+        safety \
+        streamlit \
+        jupyter
+
+# Copy source code
+COPY . .
+
+# Create directories for outputs
+RUN mkdir -p /app/.pytest_cache /app/htmlcov /app/.coverage
+
+# Change ownership to non-root user
+RUN chown -R sarvam:sarvam /app
+USER sarvam
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import sys; sys.exit(0)" || exit 1
+
+# Default command
+CMD ["python", "--version"]

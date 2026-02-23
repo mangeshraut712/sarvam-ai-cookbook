@@ -1,0 +1,10 @@
+[flake8]
+select = F401,F821,E901,E999,F822,F823
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    node_modules,
+    .next,
+    .npm_local

@@ -1,5 +1,6 @@
-import requests
 import os
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,13 +10,15 @@ SARVAM_BEARER = f"Bearer {SARVAM_API_KEY}"
 
 MERCHANT_CONTEXT_FILE = "merchant_context.md"
 
+
 def load_merchant_context():
     """Loads merchant context from the markdown file."""
     try:
-        with open(MERCHANT_CONTEXT_FILE, 'r', encoding='utf-8') as f:
+        with open(MERCHANT_CONTEXT_FILE, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         return ""
+
 
 def get_chat_completion(user_text):
     """
@@ -25,7 +28,7 @@ def get_chat_completion(user_text):
         raise ValueError("SARVAM_API_KEY not found in environment variables.")
 
     merchant_context = load_merchant_context()
-    system_prompt = f'''आप एक दोस्ताना और मददगार सहायक हैं, जो भारत के दुकानदारों के लिए काम करता है।
+    system_prompt = f"""आप एक दोस्ताना और मददगार सहायक हैं, जो भारत के दुकानदारों के लिए काम करता है।
 
 आपको भारत में छोटे व्यवसायों की ज़मीनी हकीकत की अच्छी समझ है, और आप:
 
@@ -105,24 +108,25 @@ WhatsApp और Facebook पर अपनी दुकान की जानक
 प्रश्न: आज मेरी बिक्री कितनी है?
 
 उत्तर:  
-आज आपकी बिक्री एक हज़ार रुपये है।'''
+आज आपकी बिक्री एक हज़ार रुपये है।"""
 
-    headers = {
-        'Authorization': SARVAM_BEARER,
-        'Content-Type': 'application/json'
-    }
+    headers = {"Authorization": SARVAM_BEARER, "Content-Type": "application/json"}
     payload = {
-        'model': 'sarvam-m',
-        'messages': [
-            {'role': 'system', 'content': system_prompt},
-            {'role': 'user', 'content': user_text}
+        "model": "sarvam-m",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_text},
         ],
-        'stream': False
+        "stream": False,
     }
 
-    response = requests.post('https://api.sarvam.ai/v1/chat/completions', json=payload, headers=headers)
+    response = requests.post(
+        "https://api.sarvam.ai/v1/chat/completions", json=payload, headers=headers
+    )
 
     if not response.ok:
-        raise Exception(f"Chat API request failed with status {response.status_code}: {response.text}")
+        raise Exception(
+            f"Chat API request failed with status {response.status_code}: {response.text}"
+        )
 
-    return response.json()['choices'][0]['message']['content'] 
+    return response.json()["choices"][0]["message"]["content"]

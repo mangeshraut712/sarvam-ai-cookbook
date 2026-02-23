@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import os
+
 import requests
 from dotenv import load_dotenv
-import os
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 # Load .env file
 load_dotenv()
@@ -21,16 +22,19 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 # Input model
 class UserAnswers(BaseModel):
     answers: list[str]
+
 
 @app.post("/generate-song")
 async def generate_song(data: UserAnswers):
@@ -62,18 +66,8 @@ async def generate_song(data: UserAnswers):
 
     response = requests.post(
         "https://api.sarvam.ai/v1/chat/completions",
-        headers={
-            "api-subscription-key": SARVAM_API_KEY
-        },
-        json={
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "model": "sarvam-m"
-        },
+        headers={"api-subscription-key": SARVAM_API_KEY},
+        json={"messages": [{"role": "user", "content": prompt}], "model": "sarvam-m"},
     )
 
     result = response.json()

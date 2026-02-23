@@ -1,54 +1,116 @@
 # Import necessary libraries
-import argparse  # This is for parsing command-line arguments (like your API key).
-import requests  # This is for making HTTP requests to the Sarvam AI API.
+import argparse
 
-# This function sends your message to the Sarvam AI API and gets a response.
-def get_chat_response(api_key, user_input):
+import requests
+
+
+def get_chat_response(api_key: str, user_input: str) -> str:
     """
     Get a response from the Sarvam AI Chat Completions API.
+
+    Args:
+        api_key: Sarvam AI API key
+        user_input: User's message/question
+
+    Returns:
+        Bot's response as a string
+
+    Raises:
+        requests.exceptions.RequestException: If API request fails
     """
-    # These are the headers for the API request, including your API key for authorization.
+    # API endpoint and headers
+    url = "https://api.sarvam.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
-    # This is the data payload for the API request.
-    data = {
-        "model": "sarvam-m",  # Specifies the model to use.
+
+    # Request payload
+    payload = {
+        "model": "sarvam-m",
         "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},  # System message to guide the bot's behavior.
-            {"role": "user", "content": user_input},  # Your question.
+            {
+                "role": "system",
+                "content": "You are a helpful assistant.",
+            },
+            {"role": "user", "content": user_input},
         ],
-        "temperature": 0.7,  # Controls the creativity of the response.
+        "temperature": 0.7,
+        "max_tokens": 500,
     }
-    # This sends the request to the Sarvam AI API.
-    response = requests.post(
-        "https://api.sarvam.ai/v1/chat/completions", headers=headers, json=data
-    )
-    response.raise_for_status()  # This will raise an error if the request fails.
-    # This extracts the bot's message from the JSON response.
+
+    # Make API request
+    response = requests.post(url, headers=headers, json=payload, timeout=30)
+    response.raise_for_status()
+
+    # Extract and return response
     return response.json()["choices"][0]["message"]["content"]
 
-# This is the main function that runs when you execute the script.
-def main():
-    # This sets up the command-line argument parser to accept your API key.
-    parser = argparse.ArgumentParser(description="Basic Sarvam AI Chatbot")
-    parser.add_argument("--api-key", required=True, help="Your Sarvam AI API key.")
+
+def main() -> None:
+    """Main function to run the chatbot."""
+    parser = argparse.ArgumentParser(
+        description="Basic Sarvam AI Chatbot",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Example:
+  python chatbot.py --api-key your_api_key_here
+  python chatbot.py --api-key your_api_key_here "What is AI?""",
+    )
+    parser.add_argument(
+        "--api-key",
+        required=True,
+        help="Your Sarvam AI API key (get from https://dashboard.sarvam.ai/)",
+    )
+    parser.add_argument(
+        "message",
+        nargs="?",
+        help="Optional message to process (if not provided, will prompt for input)",
+    )
+
     args = parser.parse_args()
 
-    # This prompts you to enter your question.
-    print("Chatbot initialized. Enter your question.")
-    user_input = input("You: ").strip()
+    try:
+        if args.message:
+            # Process message from command line argument
+            user_input = args.message.strip()
+            if user_input:
+                bot_response = get_chat_response(args.api_key, user_input)
+                print(f"User: {user_input}")
+                print(f"Bot: {bot_response}")
+            else:
+                print("Error: Empty message provided.")
+        else:
+            # Interactive mode
+            print("Chatbot initialized. Enter your question (or 'quit' to exit).")
 
-    if user_input:
-        try:
-            # This calls the function to get the bot's response.
-            bot_response = get_chat_response(args.api_key, user_input)
-            # This prints the bot's response.
-            print(f"Bot: {bot_response}")
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
+            while True:
+                try:
+                    user_input = input("You: ").strip()
 
-# This ensures that the main() function is called when the script is run directly.
+                    if user_input.lower() in ["quit", "exit", "bye"]:
+                        print("Goodbye!")
+                        break
+
+                    if not user_input:
+                        print("Please enter a message.")
+                        continue
+
+                    bot_response = get_chat_response(args.api_key, user_input)
+                    print(f"Bot: {bot_response}")
+
+                except KeyboardInterrupt:
+                    print("\nGoodbye!")
+                    break
+                except EOFError:
+                    print("\nGoodbye!")
+                    break
+
+    except requests.exceptions.RequestException as e:
+        print(f"API Error: {e}")
+        print("Please check your API key and internet connection.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+
 if __name__ == "__main__":
     main()

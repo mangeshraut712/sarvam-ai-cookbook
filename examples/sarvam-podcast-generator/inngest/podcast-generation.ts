@@ -1,6 +1,6 @@
 import { inngest } from '../lib/inngest';
 import { updateJobStatus } from '../lib/job-store';
-import { uploadBase64AudioWithCleanup, fetchAudioDataUrl } from '../lib/upload-audio';
+import { uploadBase64AudioWithCleanup } from '../lib/upload-audio';
 
 interface ScriptSegment {
     speaker: 'host' | 'guest';
@@ -48,7 +48,12 @@ async function callSarvamChat(messages: Array<{ role: string, content: string }>
         throw new Error('Sarvam API key not configured');
     }
 
-    const requestBody: any = {
+    const requestBody: {
+        messages: Array<{ role: string; content: string }>;
+        model: string;
+        temperature: number;
+        max_tokens?: number;
+    } = {
         messages,
         model: 'sarvam-m',
         temperature

@@ -86,7 +86,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
                     throw new Error('Invalid data URL format received');
                   }
                   return { ...segment, audioUrl: dataUrl };
-                } catch (error) {
+                } catch {
                   retryCount++;
                   const isFirstSegment = index === 0;
                   const delayMs = isFirstSegment ? 2000 * retryCount : 1000 * retryCount; // Longer delays for first segment
@@ -134,9 +134,8 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
           }
           
           // Wait for audio to load with proper sequencing
-          await new Promise<void>((resolve, reject) => {
+          await new Promise<void>((resolve) => {
             let resolved = false;
-            let timeoutId: NodeJS.Timeout;
             
             const cleanup = () => {
               if (resolved) return;
@@ -174,7 +173,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
               }
             };
             
-            const handleError = (e: any) => {
+            const handleError = () => {
               // Create a fallback segment but still mark as loaded for playback
               // We'll handle the actual loading during playback if needed
               const fallbackSegment = {
@@ -202,9 +201,9 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
             audioElement.addEventListener('error', handleError);
             
             const timeoutDuration = i === 0 ? 30000 : (i === 1 ? 25000 : 20000);
-            timeoutId = setTimeout(() => {
+            const timeoutId = setTimeout(() => {
               if (!resolved) {
-                handleError(new Error('Timeout'));
+                handleError();
               }
             }, timeoutDuration);
             
@@ -312,7 +311,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
         return;
       }
 
-      let audioToPlay = segment.audioElement;
+      const audioToPlay = segment.audioElement;
       
       try {
         audioToPlay.pause();
@@ -349,12 +348,12 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
               resolve();
             };
             
-            const handleError = (e: any) => {
+            const handleError = () => {
               clearTimeout(timeoutId);
               audioToPlay.removeEventListener('canplay', handleCanPlay);
               audioToPlay.removeEventListener('loadeddata', handleCanPlay);
               audioToPlay.removeEventListener('error', handleError);
-              reject(e);
+              reject(new Error('Audio failed to load'));
             };
             
             audioToPlay.addEventListener('canplay', handleCanPlay);
@@ -369,7 +368,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
               }
             }
           });
-        } catch (error) {
+        } catch {
           // Try to move to next segment
           if (segmentIndex < preloadedSegmentsRef.current.length - 1) {
             const nextSegmentIndex = segmentIndex + 1;
@@ -392,7 +391,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
         } else {
           currentAudio.currentTime = 0;
         }
-      } catch (e) {
+      } catch {
         try {
           currentAudio.currentTime = 0;
         } catch (e2) {
@@ -463,7 +462,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
           }
         };
 
-        const handlePlayError = (e: any) => {
+        const handlePlayError = () => {
           if (currentAudio) {
             currentAudio.removeEventListener('ended', handleEnded);
             currentAudio.removeEventListener('error', handlePlayError);
@@ -554,7 +553,7 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
       }
       isPlaybackActive = false;
     };
-  }, [isPlaying, isPreloading]);
+  }, [currentTime, isPlaying, isPreloading]);
 
   const handlePlayPause = async () => {
     if (preloadedSegmentsRef.current.length === 0 || isPreloading) {
@@ -572,7 +571,6 @@ export function PodcastControls({ audioSegments, transcript }: PodcastControlsPr
         setCurrentTime(0);
         setCurrentSegment(0);
       }
-    } else {
     }
   };
 

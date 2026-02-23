@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Python development environment
+  python-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.python
+    container_name: sarvam-cookbook-python
+    ports:
+      - "8501:8501"  # Streamlit
+      - "8888:8888"  # Jupyter
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - PYTHONPATH=/app
+    command: tail -f /dev/null  # Keep container running
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Sarvam Showcase web application
+  sarvam-showcase:
+    build:
+      context: ./examples/sarvam-showcase
+    container_name: sarvam-showcase
+    ports:
+      - "3000:3000"
+    environment:
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - NODE_ENV=production
+    depends_on:
+      - python-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Sarvam Podcast Generator (if applicable)
+  sarvam-podcast:
+    build:
+      context: ./examples/sarvam-podcast-generator
+    container_name: sarvam-podcast-generator
+    ports:
+      - "3001:3000"
+    environment:
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - UPLOADTHING_TOKEN=${UPLOADTHING_TOKEN}
+      - REDIS_URL=${REDIS_URL}
+      - INNGEST_SIGNING_KEY=${INNGEST_SIGNING_KEY}
+      - NODE_ENV=production
+    depends_on:
+      - python-dev
+    profiles:
+      - podcast  # Only start with --profile podcast
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: sarvam-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    profiles:
+      - podcast  # Only start with podcast features
+
+volumes:
+  redis_data:
+
+networks:
+  default:
+    name: sarvam-network

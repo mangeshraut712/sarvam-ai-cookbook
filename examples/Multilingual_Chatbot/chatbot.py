@@ -1,21 +1,20 @@
 import argparse
+from typing import Any, Dict, List
+
 import requests
-from typing import List, Dict, Any
 
 
 class MultilingualChatbot:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, max_history: int = 5):
         self.api_key = api_key
         self.base_url = "https://api.sarvam.ai/v1/chat/completions"
-        self.translate_url = (
-            "https://api.sarvam.ai/translate/text"  # Add translation endpoint
-        )
+        self.translate_url = "https://api.sarvam.ai/translate"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         self.conversation_history: List[Dict[str, str]] = []
-        self.max_history = 5
+        self.max_history = max_history
 
         # Common error messages in different languages
         self.error_messages = {
@@ -28,29 +27,29 @@ class MultilingualChatbot:
         }
 
     def detect_language(self, text: str) -> str:
-        # Enhanced language detection based on character ranges
-        devanagari_range = range(0x0900, 0x097F)  # Hindi
-        tamil_range = range(0x0B80, 0x0BFF)  # Tamil
-        telugu_range = range(0x0C00, 0x0C7F)  # Telugu
-        kannada_range = range(0x0C80, 0x0CFF)  # Kannada
-        malayalam_range = range(0x0D00, 0x0D7F)  # Malayalam
+        """Detect language based on Unicode character ranges."""
+        if not text or not text.strip():
+            return "english"
+
+        # Language character ranges for major Indian languages
+        language_ranges = {
+            "hindi": range(0x0900, 0x097F),
+            "tamil": range(0x0B80, 0x0BFF),
+            "telugu": range(0x0C00, 0x0C7F),
+            "kannada": range(0x0C80, 0x0CFF),
+            "malayalam": range(0x0D00, 0x0D7F),
+        }
 
         for char in text:
             code = ord(char)
-            if code in devanagari_range:
-                return "hindi"
-            elif code in tamil_range:
-                return "tamil"
-            elif code in telugu_range:
-                return "telugu"
-            elif code in kannada_range:
-                return "kannada"
-            elif code in malayalam_range:
-                return "malayalam"
+            for lang, char_range in language_ranges.items():
+                if code in char_range:
+                    return lang
 
         return "english"
 
     def translate_text(self, text: str, target_lang: str) -> str:
+        """Translate text to target language using Sarvam API."""
         try:
             # If we have a pre-translated error message, use it
             if (
@@ -59,11 +58,19 @@ class MultilingualChatbot:
             ):
                 return self.error_messages[target_lang]
 
-            # Otherwise, use the translation API
+            # Use the translation API with correct endpoint format
+            translate_payload = {
+                "input": text,
+                "source_language_code": "en-IN",
+                "target_language_code": f"{target_lang[:2].upper()}-IN",
+                "mode": "formal",
+            }
+
             response = requests.post(
                 self.translate_url,
                 headers=self.headers,
-                json={"text": text, "target_language": target_lang},
+                json=translate_payload,
+                timeout=30,
             )
             response.raise_for_status()
             return response.json()["translated_text"]
@@ -72,6 +79,10 @@ class MultilingualChatbot:
             return self.error_messages.get(target_lang, self.error_messages["english"])
 
     def get_chat_response(self, user_input: str) -> Dict[str, Any]:
+        """Get chat response with language detection and error handling."""
+        if not user_input or not user_input.strip():
+            return {"response": self.error_messages["english"], "language": "english"}
+
         # Detect language of user input
         detected_lang = self.detect_language(user_input)
 
@@ -86,7 +97,7 @@ class MultilingualChatbot:
             }
         ]
 
-        # Add conversation history (limited to last 5 turns)
+        # Add conversation history (limited to last N turns)
         messages.extend(self.conversation_history[-self.max_history :])
 
         # Make API call
@@ -94,7 +105,13 @@ class MultilingualChatbot:
             response = requests.post(
                 self.base_url,
                 headers=self.headers,
-                json={"model": "sarvam-m", "messages": messages, "temperature": 0.7},
+                json={
+                    "model": "sarvam-m",
+                    "messages": messages,
+                    "temperature": 0.7,
+                    "max_tokens": 500,
+                },
+                timeout=30,
             )
             response.raise_for_status()
 
@@ -119,21 +136,41 @@ class MultilingualChatbot:
 def main():
     parser = argparse.ArgumentParser(description="Multilingual Chatbot")
     parser.add_argument("--api-key", required=True, help="Sarvam API key")
+    parser.add_argument(
+        "--max-history",
+        type=int,
+        default=5,
+        help="Maximum conversation history to keep (default: 5)",
+    )
     args = parser.parse_args()
 
-    chatbot = MultilingualChatbot(args.api_key)
+    chatbot = MultilingualChatbot(args.api_key, args.max_history)
 
     print("Chatbot initialized. Type 'quit' to exit.")
-    print("You can chat in English or regional language.")
+    print(
+        "You can chat in English or regional languages (Hindi, Tamil, Telugu, Kannada, Malayalam)."
+    )
 
     while True:
-        user_input = input("\nYou: ").strip()
+        try:
+            user_input = input("\nYou: ").strip()
 
-        if user_input.lower() == "quit":
+            if user_input.lower() in ["quit", "exit", "bye"]:
+                print("Goodbye!")
+                break
+
+            if not user_input:
+                continue
+
+            response = chatbot.get_chat_response(user_input)
+            print(f"\nBot ({response['language']}): {response['response']}")
+
+        except KeyboardInterrupt:
+            print("\nGoodbye!")
             break
-
-        response = chatbot.get_chat_response(user_input)
-        print(f"\nBot ({response['language']}): {response['response']}")
+        except EOFError:
+            print("\nGoodbye!")
+            break
 
 
 if __name__ == "__main__":

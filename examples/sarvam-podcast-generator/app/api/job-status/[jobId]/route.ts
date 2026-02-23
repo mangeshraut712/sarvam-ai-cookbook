@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getJobStatus } from '../../../../lib/job-store';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
   try {
