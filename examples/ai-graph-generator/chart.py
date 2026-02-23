@@ -170,13 +170,15 @@ def main():
                 st.warning("Please enter a visualization request.")
 
     with col2:
-        st.markdown("""
+        st.markdown(
+            """
         💡 **Tips for better results:**
         - Be specific about the type of chart you want
         - Mention if you want specific colors or styles
         - Specify any data ranges or categories
         - Ask for labels and legends if needed
-        """)
+        """
+        )
 
         if st.session_state.generated_code:
             st.subheader("Generated Python Code")

@@ -14,10 +14,12 @@ if "preferred_language" not in st.session_state:
 
 # Title and description
 st.title("✈️ AI Travel Assistant")
-st.markdown("""
+st.markdown(
+    """
 Your personalized travel companion for exploring India and beyond! 
 Get customized itineraries, local insights, and cultural guidance in your preferred language.
-""")
+"""
+)
 
 # Language selection
 languages = {
