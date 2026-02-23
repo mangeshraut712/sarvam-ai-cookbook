@@ -125,6 +125,8 @@ vercel --cwd examples/sarvam-showcase
 vercel --cwd examples/sarvam-podcast-generator
 ```
 
+- Live app: https://sarvam-ai-cookbook.vercel.app
+
 #### Vercel Dashboard (Git Import / Monorepo)
 If you import this repository from GitHub in Vercel, use these settings for the showcase app:
 
@@ -213,6 +215,14 @@ npm run lint            # Lint check
 cd examples/sarvam-podcast-generator
 npm run dev             # Development server
 npm run inngest         # Start background workers
+
+# FastAPI app (Birthday Song Generator)
+cd examples/Birthday_Song_Generator/backend
+uvicorn main:app --reload
+# Then test:
+# curl -X POST http://127.0.0.1:8000/generate-song \
+#   -H "Content-Type: application/json" \
+#   -d '{"answers":["Name 25","Blue","Coding","Rahul Goa","Pizza","Ladakh","Funny moment","Talks to plants","Mango King","Dances in public"]}'
 ```
 
 ### **Docker Commands**
