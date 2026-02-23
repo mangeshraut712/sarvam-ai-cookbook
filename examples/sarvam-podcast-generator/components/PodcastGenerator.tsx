@@ -11,8 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Brain, FileText, Mic, Volume2, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { FaGithub, FaXTwitter, FaLinkedin } from 'react-icons/fa6';
+import { AlertCircle, Brain, FileText, Mic, Volume2, Clock, CheckCircle, XCircle, Github, Linkedin, Twitter } from 'lucide-react';
 import { pollJobStatus } from '@/lib/poll-job-status';
 
 interface DocumentData {
@@ -461,7 +460,7 @@ export function PodcastGenerator() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:scale-105 transform"
               >
-                <FaGithub className="w-5 h-5" aria-hidden="true" />
+                <Github className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm">GitHub</span>
               </a>
               <a
@@ -470,7 +469,7 @@ export function PodcastGenerator() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:scale-105 transform"
               >
-                <FaLinkedin className="w-5 h-5" aria-hidden="true" />
+                <Linkedin className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm">LinkedIn</span>
               </a>
               <a
@@ -479,7 +478,7 @@ export function PodcastGenerator() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 hover:scale-105 transform"
               >
-                <FaXTwitter className="w-5 h-5" aria-hidden="true" />
+                <Twitter className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm">X</span>
               </a>
             </div>

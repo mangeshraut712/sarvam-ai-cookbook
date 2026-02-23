@@ -26,6 +26,8 @@ eggs/
 lib/
 !examples/sarvam-showcase/src/lib/
 !examples/sarvam-showcase/src/lib/**
+!examples/sarvam-podcast-generator/lib/
+!examples/sarvam-podcast-generator/lib/**
 lib64/
 parts/
 sdist/

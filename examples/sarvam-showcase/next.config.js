@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Remove Next.js fingerprinting header and trim deploy output
+  poweredByHeader: false,
+  output: 'standalone',
+
   // Performance optimizations
   compress: true,
 
@@ -50,6 +54,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-select', '@radix-ui/react-slot'],
   },
 
   // Build optimization

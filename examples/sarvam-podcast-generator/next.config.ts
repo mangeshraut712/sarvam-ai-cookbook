@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Remove Next.js fingerprinting header and trim deploy output
+  poweredByHeader: false,
+
   // Performance optimizations
   compress: true,
 
