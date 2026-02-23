@@ -125,6 +125,19 @@ vercel --cwd examples/sarvam-showcase
 vercel --cwd examples/sarvam-podcast-generator
 ```
 
+#### Vercel Dashboard (Git Import / Monorepo)
+If you import this repository from GitHub in Vercel, use these settings for the showcase app:
+
+- `Framework Preset`: `Next.js`
+- `Root Directory`: `examples/sarvam-showcase`
+- `Install Command`: `npm ci`
+- `Build Command`: `npm run build`
+
+If you keep root directory at repository root, use prefix-based commands:
+
+- `Install Command`: `npm ci --prefix examples/sarvam-showcase`
+- `Build Command`: `npm ci --prefix examples/sarvam-showcase && npm run build --prefix examples/sarvam-showcase`
+
 ### **Docker Deployment**
 ```bash
 # Build and run with Docker
