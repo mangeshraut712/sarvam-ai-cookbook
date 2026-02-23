@@ -128,7 +128,7 @@ jobs:
           cache-dependency-path: examples/sarvam-showcase/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Lint and build showcase app
         run: |
@@ -151,7 +151,7 @@ jobs:
           cache-dependency-path: examples/sarvam-podcast-generator/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Lint and build podcast app
         run: |
