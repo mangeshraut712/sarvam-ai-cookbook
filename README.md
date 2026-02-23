@@ -130,8 +130,9 @@ If you import this repository from GitHub in Vercel, use these settings for the 
 
 - `Framework Preset`: `Next.js`
 - `Root Directory`: `examples/sarvam-showcase`
-- `Install Command`: `npm ci`
-- `Build Command`: `npm run build`
+- `Install Command`: leave empty (uses `examples/sarvam-showcase/vercel.json`)
+- `Build Command`: leave empty (uses `examples/sarvam-showcase/vercel.json`)
+- `Development Command`: leave empty (uses `examples/sarvam-showcase/vercel.json`)
 
 If you keep root directory at repository root, use prefix-based commands:
 
