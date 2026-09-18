@@ -48,7 +48,7 @@ def asr_route():
         return jsonify({'transcript': transcript})
     except Exception as e:
         print(f"ASR Error: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'ASR failed to transcribe audio'}), 500
 
 @app.route('/lid', methods=['POST'])
 def lid_route():
@@ -62,7 +62,7 @@ def lid_route():
         return jsonify(lid_result)
     except Exception as e:
         print(f"LID Error: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Language identification failed'}), 500
 
 @app.route('/chat', methods=['POST'])
 def chat_route():
@@ -79,7 +79,7 @@ def chat_route():
         return jsonify({'reply': bot_reply_text})
     except Exception as e:
         print(f"/chat route: Error during LLM call: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Chat completion failed'}), 500
 
 @app.route('/tts', methods=['POST'])
 def tts_route():
@@ -118,7 +118,7 @@ def tts_route():
         return jsonify({'audio_id': audio_id})
     except Exception as e:
         print(f"/tts route: Error during TTS processing: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Text-to-speech failed'}), 500
 
 @app.route('/get_audio/<audio_id>', methods=['GET'])
 def get_audio_route(audio_id):
@@ -140,4 +140,5 @@ def get_audio_route(audio_id):
         return jsonify({'error': 'Audio not found or already retrieved'}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    debug = os.getenv("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
+    app.run(debug=debug, port=5001) 
