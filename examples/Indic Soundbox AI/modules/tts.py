@@ -12,6 +12,18 @@ SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
 TTS_CHARACTER_LIMIT = 2500 # As per Sarvam API documentation (bulbul:v3)
 MIN_TEXT_LENGTH_FOR_FORCED_TWO_WAY_SPLIT = 20 # Chars, don't split very short texts forcibly
 
+# BMP / supplementary emoji and symbol code points stripped before TTS.
+_EMOJI_CODE_POINTS = frozenset({
+    *range(0x1F600, 0x1F650),
+    *range(0x1F300, 0x1F600),
+    *range(0x1F680, 0x1F700),
+    *range(0x1F1E0, 0x1F200),
+    *range(0x2600, 0x2700),
+    *range(0x2700, 0x27C0),
+    0xFE0F,
+    *range(0x1F900, 0x1FA00),
+})
+
 def _clean_text_for_tts(text_input):
     """Cleans text by removing common markdown, multiple spaces, and emojis."""
     if not text_input:
@@ -25,19 +37,11 @@ def _clean_text_for_tts(text_input):
     # Remove #, ##, ### headers
     cleaned_text = re.sub(r'^#+\s*', '', cleaned_text, flags=re.MULTILINE) 
 
-    # Remove emojis (this is a basic range, more comprehensive regex is possible but larger)
-    # Basic BMP emoji pattern
-    emoji_pattern = re.compile("["
-                               u"\U0001F600-\U0001F64F"  # emoticons
-                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                               u"\u2600-\u26FF"          # miscellaneous symbols
-                               u"\u2700-\u27BF"          # dingbats
-                               u"\uFE0F"                # variation selector
-                               u"\U0001F900-\U0001F9FF"  # supplemental symbols and pictographs
-                               "]+", flags=re.UNICODE)
-    cleaned_text = emoji_pattern.sub(r'', cleaned_text)
+    # Strip emoji / symbol code points without a regex character class.
+    # CodeQL flags overlapping supplementary-plane ranges in a single `[]` class.
+    cleaned_text = "".join(
+        ch for ch in cleaned_text if ord(ch) not in _EMOJI_CODE_POINTS
+    )
 
     # Replace multiple spaces with a single space
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
